@@ -36,6 +36,16 @@
 
 #include "../gen-cpp/SMT.h"
 
+#include "moses/ExportInterface.h"
+#include "util/string_stream.hh"
+#include <iostream>
+
+    std::string s = "phrase-model/moses.ini";
+    SimpleTranslationInterface trans = SimpleTranslationInterface(s);
+    std::string in = "das ist ein kleines haus";
+    std::string r = trans.translate(in);
+    std::cout << r << std::endl;
+
 using namespace std;
 using namespace apache::thrift;
 using namespace apache::thrift::concurrency;
@@ -59,7 +69,7 @@ public:
             cout << id << "\t" << sent << endl;
             _return.id = id;
             _return.input_sent = sent;
-            _return.translate_sent = "translate_ret";
+            _return.translate_ret = "translate_ret";
         }
 
 protected:
