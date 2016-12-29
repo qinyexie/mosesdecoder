@@ -49,34 +49,37 @@ using namespace apache::thrift::server;
 
 using namespace tutorial;
 
+static SimpleTranslationInterface *ptrans = NULL;
+
 class SMTHandler : public SMTIf {
 public:
-    SMTHandler()
-        {
-            string s = "phrase-model/moses.ini";
-            ptrans = &SimpleTranslationInterface(s);
-        }
+  SMTHandler()
+  {
+    if (ptrans == NULL)
+      {
+	string s = "phrase-model/moses.ini";
+	ptrans = new SimpleTranslationInterface(s);
+      }
+  }
 
-    void init()
-        {
-            cout << "init ok" << endl;
-        }
-
-    void translate(Work& _return, const int32_t id, const string& sent)
-        {
-            string in = "das ist ein kleines haus";
-            string r = ptrans->translate(in);
-            cout << r << endl;
-
-            cout << id << "\t" << sent << endl;
-            _return.id = id;
-            _return.input_sent = sent;
-            _return.translate_ret = r;
-        }
+  void init()
+  {
+    cout << "init ok" << endl;
+  }
+  
+  void translate(Work& _return, const int32_t id, const string& sent)
+  {
+    string in = "das ist ein kleines haus";
+    string r = ptrans->translate(in);
+    cout << r << endl;
+    cout << id << "\t" << sent << endl;
+    _return.id = id;
+    _return.input_sent = sent;
+    _return.translate_ret = r;
+  }
 
 protected:
-    // map<int32_t, string> log;
-    SimpleTranslationInterface *ptrans;
+  // map<int32_t, string> log;
 };
 
 /*
@@ -86,7 +89,7 @@ protected:
   CloneFactory, all connections will end up sharing the same handler instance.
 */
 class SMTCloneFactory : virtual public SMTIfFactory {
- public:
+public:
   virtual ~SMTCloneFactory() {}
   virtual SMTIf* getHandler(const ::apache::thrift::TConnectionInfo& connInfo)
   {
@@ -99,52 +102,52 @@ class SMTCloneFactory : virtual public SMTIfFactory {
     return new SMTHandler;
   }
 
-    virtual void releaseHandler( SMTIf* handler) {
-        delete handler;
-    }
+  virtual void releaseHandler( SMTIf* handler) {
+    delete handler;
+  }
 };
 
 int main() {
   TThreadedServer server(
-    boost::make_shared<SMTProcessorFactory>(boost::make_shared<SMTCloneFactory>()),
-    boost::make_shared<TServerSocket>(9090), //port
-    boost::make_shared<TBufferedTransportFactory>(),
-    boost::make_shared<TBinaryProtocolFactory>());
+			 boost::make_shared<SMTProcessorFactory>(boost::make_shared<SMTCloneFactory>()),
+			 boost::make_shared<TServerSocket>(9090), //port
+			 boost::make_shared<TBufferedTransportFactory>(),
+			 boost::make_shared<TBinaryProtocolFactory>());
 
   /*
   // if you don't need per-connection state, do the following instead
   TThreadedServer server(
-    boost::make_shared<SMTProcessor>(boost::make_shared<SMTHandler>()),
-    boost::make_shared<TServerSocket>(9090), //port
-    boost::make_shared<TBufferedTransportFactory>(),
-    boost::make_shared<TBinaryProtocolFactory>());
+  boost::make_shared<SMTProcessor>(boost::make_shared<SMTHandler>()),
+  boost::make_shared<TServerSocket>(9090), //port
+  boost::make_shared<TBufferedTransportFactory>(),
+  boost::make_shared<TBinaryProtocolFactory>());
   */
 
   /**
    * Here are some alternate server types...
 
-  // This server only allows one connection at a time, but spawns no threads
-  TSimpleServer server(
-    boost::make_shared<SMTProcessor>(boost::make_shared<SMTHandler>()),
-    boost::make_shared<TServerSocket>(9090),
-    boost::make_shared<TBufferedTransportFactory>(),
-    boost::make_shared<TBinaryProtocolFactory>());
+   // This server only allows one connection at a time, but spawns no threads
+   TSimpleServer server(
+   boost::make_shared<SMTProcessor>(boost::make_shared<SMTHandler>()),
+   boost::make_shared<TServerSocket>(9090),
+   boost::make_shared<TBufferedTransportFactory>(),
+   boost::make_shared<TBinaryProtocolFactory>());
 
-  const int workerCount = 4;
+   const int workerCount = 4;
 
-  boost::shared_ptr<ThreadManager> threadManager =
-    ThreadManager::newSimpleThreadManager(workerCount);
-  threadManager->threadFactory(
-    boost::make_shared<PlatformThreadFactory>());
-  threadManager->start();
+   boost::shared_ptr<ThreadManager> threadManager =
+   ThreadManager::newSimpleThreadManager(workerCount);
+   threadManager->threadFactory(
+   boost::make_shared<PlatformThreadFactory>());
+   threadManager->start();
 
-  // This server allows "workerCount" connection at a time, and reuses threads
-  TThreadPoolServer server(
-    boost::make_shared<SMTProcessorFactory>(boost::make_shared<SMTCloneFactory>()),
-    boost::make_shared<TServerSocket>(9090),
-    boost::make_shared<TBufferedTransportFactory>(),
-    boost::make_shared<TBinaryProtocolFactory>(),
-    threadManager);
+   // This server allows "workerCount" connection at a time, and reuses threads
+   TThreadPoolServer server(
+   boost::make_shared<SMTProcessorFactory>(boost::make_shared<SMTCloneFactory>()),
+   boost::make_shared<TServerSocket>(9090),
+   boost::make_shared<TBufferedTransportFactory>(),
+   boost::make_shared<TBinaryProtocolFactory>(),
+   threadManager);
   */
 
   cout << "Starting the server..." << endl;
