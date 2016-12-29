@@ -4,5 +4,6 @@
 
 set -e -o pipefail
 OPT=${OPT:-$(pwd)/opt}
-# ./bjam --with-irstlm=$OPT/irstlm-5.80.08 --with-boost=$OPT --with-cmph=$OPT --with-xmlrpc-c=$OPT --with-mm --with-probing-pt -j$(getconf _NPROCESSORS_ONLN) $@
-./bjam --with-irstlm=$OPT/irstlm-5.80.08 --with-boost=$OPT --with-cmph=$OPT --with-xmlrpc-c=$OPT --with-mm --with-probing-pt --libdir=/work/mosesdecoder/python_wrap/lib link=shared -j$(getconf _NPROCESSORS_ONLN) $@
+LIBPATH=${LIBPATH:-$(pwd)/python_wrap/lib}
+
+./bjam --with-irstlm=$OPT/irstlm-5.80.08 --with-boost=$OPT --with-cmph=$OPT --with-xmlrpc-c=$OPT --with-mm --with-probing-pt --libdir=$LIBPATH link=shared -j$(getconf _NPROCESSORS_ONLN) $@
