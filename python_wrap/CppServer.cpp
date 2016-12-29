@@ -51,10 +51,11 @@ using namespace tutorial;
 
 class SMTHandler : public SMTIf {
 public:
-    SMTHandler() {
-        string s = "phrase-model/moses.ini";
-        trans = SimpleTranslationInterface(s);
-    }
+    SMTHandler()
+        {
+            string s = "phrase-model/moses.ini";
+            ptrans = &SimpleTranslationInterface(s);
+        }
 
     void init()
         {
@@ -64,7 +65,7 @@ public:
     void translate(Work& _return, const int32_t id, const string& sent)
         {
             string in = "das ist ein kleines haus";
-            string r = trans.translate(in);
+            string r = ptrans->translate(in);
             cout << r << endl;
 
             cout << id << "\t" << sent << endl;
@@ -74,8 +75,8 @@ public:
         }
 
 protected:
-    map<int32_t, string> log;
-    SimpleTranslationInterface trans;
+    // map<int32_t, string> log;
+    SimpleTranslationInterface *ptrans;
 };
 
 /*
