@@ -53,26 +53,19 @@ static SimpleTranslationInterface *ptrans = NULL;
 
 class SMTHandler : public SMTIf {
 public:
-  SMTHandler()
-  {
-    if (ptrans == NULL)
-      {
-	string s = "phrase-model/moses.ini";
-	ptrans = new SimpleTranslationInterface(s);
-      }
-  }
+  SMTHandler(){}
 
-  void init()
+  int32_t init()
   {
-    cout << "init ok" << endl;
+    if(ptrans == NULL)
+      return 1;
+    else
+      return 0;
   }
   
   void translate(Work& _return, const int32_t id, const string& sent)
   {
-    string in = "das ist ein kleines haus";
-    string r = ptrans->translate(in);
-    cout << r << endl;
-    cout << id << "\t" << sent << endl;
+    string r = ptrans->translate(sent);
     _return.id = id;
     _return.input_sent = sent;
     _return.translate_ret = r;
@@ -107,7 +100,17 @@ public:
   }
 };
 
-int main() {
+int main(int argc, char* argv[]) {
+
+  if (argc != 2)
+    return -1;
+  else
+    {
+      string s = string(argv[1]);
+      cout << "init moses by config " << s << endl;
+      ptrans = new SimpleTranslationInterface(s);
+    }
+  
   TThreadedServer server(
 			 boost::make_shared<SMTProcessorFactory>(boost::make_shared<SMTCloneFactory>()),
 			 boost::make_shared<TServerSocket>(9090), //port

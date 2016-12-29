@@ -26,5 +26,5 @@ struct Work {
  */
 service SMT {
    Work translate(1:i32 id, 2:string sent),
-   oneway void init()
+   i32 init()
 }
