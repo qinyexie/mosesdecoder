@@ -40,12 +40,6 @@
 #include "util/string_stream.hh"
 #include <iostream>
 
-    std::string s = "phrase-model/moses.ini";
-    SimpleTranslationInterface trans = SimpleTranslationInterface(s);
-    std::string in = "das ist ein kleines haus";
-    std::string r = trans.translate(in);
-    std::cout << r << std::endl;
-
 using namespace std;
 using namespace apache::thrift;
 using namespace apache::thrift::concurrency;
@@ -57,7 +51,10 @@ using namespace tutorial;
 
 class SMTHandler : public SMTIf {
 public:
-    SMTHandler() {}
+    SMTHandler() {
+        string s = "phrase-model/moses.ini";
+        trans = SimpleTranslationInterface(s);
+    }
 
     void init()
         {
@@ -66,14 +63,19 @@ public:
 
     void translate(Work& _return, const int32_t id, const string& sent)
         {
+            string in = "das ist ein kleines haus";
+            string r = trans.translate(in);
+            cout << r << endl;
+
             cout << id << "\t" << sent << endl;
             _return.id = id;
             _return.input_sent = sent;
-            _return.translate_ret = "translate_ret";
+            _return.translate_ret = r;
         }
 
 protected:
-  map<int32_t, string> log;
+    map<int32_t, string> log;
+    SimpleTranslationInterface trans;
 };
 
 /*
