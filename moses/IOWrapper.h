@@ -146,6 +146,18 @@ public:
       m_singleBestOutputCollector.reset(new Moses::OutputCollector(outStream));
   }
 
+    void SetOutputStream2nBestOutputCollector(std::ostream* outStream)
+        {
+            if (m_nBestOutputCollector.get())
+            {
+                m_nBestOutputCollector->SetOutputStream(outStream);
+            }
+            else
+            {
+                m_nBestOutputCollector.reset(new Moses::OutputCollector(outStream));
+            }
+        }
+
   Moses::OutputCollector *GetNBestOutputCollector() {
     return m_nBestOutputCollector.get();
   }

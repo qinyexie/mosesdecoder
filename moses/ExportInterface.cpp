@@ -112,6 +112,8 @@ string SimpleTranslationInterface::translate(const string &inputString)
   ioWrapper->SetInputStreamFromString(inputStream);
   ostringstream outputStream;
   ioWrapper->SetOutputStream2SingleBestOutputCollector(&outputStream);
+  ostringstream nBestOutputStream;
+  ioWrapper->SetOutputStream2nBestOutputCollector(&nBestOutputStream);
 
   boost::shared_ptr<InputType> source = ioWrapper->ReadInput();
   if (!source) return "Error: Source==null!!!";
@@ -125,10 +127,11 @@ string SimpleTranslationInterface::translate(const string &inputString)
   task->Run();
 
   string output = outputStream.str();
+  string nBestOutput = nBestOutputStream.str();
   //now trim the end whitespace
   const string whitespace = " \t\f\v\n\r";
   size_t end = output.find_last_not_of(whitespace);
-  return output.erase(end + 1);
+  return output.erase(end + 1) + "\n" + nBestOutput;
 }
 
 Moses::StaticData& SimpleTranslationInterface::getStaticData()
