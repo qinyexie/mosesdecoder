@@ -30,6 +30,7 @@ from thrift.transport import TSocket
 from thrift.transport import TTransport
 from thrift.protocol import TBinaryProtocol
 
+
 def moses_python_warp(s):
   try:
     # Make socket
@@ -55,3 +56,9 @@ def moses_python_warp(s):
 
   except Thrift.TException, tx:
     print '%s' % (tx.message)
+
+if __name__ == '__main__':
+  ret = moses_python_warp('蓝色 小 苹果')
+  print ret
+  ret = moses_python_warp('讲 个 故事 吧')
+  print ret
