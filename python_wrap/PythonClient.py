@@ -29,7 +29,8 @@ from thrift import Thrift
 from thrift.transport import TSocket
 from thrift.transport import TTransport
 from thrift.protocol import TBinaryProtocol
-
+import threading
+from multiprocessing import process
 
 def moses_python_warp(s):
   try:
@@ -46,7 +47,7 @@ def moses_python_warp(s):
 
     # client.init()
     # print 'init()'
-    sid = hash(s)
+    sid = hash(s) / 9188098211
     work = client.translate(sid, s)
     assert sid == work.id
 
@@ -58,7 +59,32 @@ def moses_python_warp(s):
     print '%s' % (tx.message)
 
 if __name__ == '__main__':
-  ret = moses_python_warp('蓝色 小 苹果')
-  print ret
-  ret = moses_python_warp('讲 个 故事 吧')
-  print ret
+  import time
+  ts = time.time()
+  for i in range(100):
+    t1 = threading.Thread(target=moses_python_warp, args=('蓝色 小 苹果',))
+    t2 = threading.Thread(target=moses_python_warp, args=('讲 个 故事 吧',))
+    t3 = threading.Thread(target=moses_python_warp, args=('现在 速度 柑橘 好 慢',))
+    t1.start()
+    t2.start()
+    t3.start()
+    t1.join()
+    t2.join()
+    t3.join()
+  te = time.time()
+  print te - ts
+
+  ts = time.time()
+  for i in range(100):
+    p1 = process.Process(target=moses_python_warp, args=('蓝色 小 苹果',))
+    p2 = process.Process(target=moses_python_warp, args=('讲 个 故事 吧',))
+    p3 = process.Process(target=moses_python_warp, args=('现在 速度 柑橘 好 慢',))
+    p1.start()
+    p2.start()
+    p3.start()
+    p1.join()
+    p2.join()
+    p3.join()
+  te = time.time()
+  print te - ts
+  
