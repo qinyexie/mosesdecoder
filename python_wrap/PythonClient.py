@@ -22,37 +22,36 @@
 import sys
 sys.path.append('gen-py')
 
-from tutorial import SMT
-from tutorial.ttypes import *
+from tutorial_cpp import SMT
+from tutorial_cpp.ttypes import *
 
 from thrift import Thrift
 from thrift.transport import TSocket
 from thrift.transport import TTransport
 from thrift.protocol import TBinaryProtocol
 
+def moses_python_warp(s):
+  try:
+    # Make socket
+    transport = TSocket.TSocket('localhost', 9090)
+    # Buffering is critical. Raw sockets are very slow
+    transport = TTransport.TBufferedTransport(transport)
+    # Wrap in a protocol
+    protocol = TBinaryProtocol.TBinaryProtocol(transport)
+    # Create a client to use the protocol encoder
+    client = SMT.Client(protocol)
+    # Connect!
+    transport.open()
 
-try:
-  # Make socket
-  transport = TSocket.TSocket('localhost', 9090)
+    # client.init()
+    # print 'init()'
+    sid = hash(s)
+    work = client.translate(sid, s)
+    assert sid == work.id
 
-  # Buffering is critical. Raw sockets are very slow
-  transport = TTransport.TBufferedTransport(transport)
+    transport.close()
 
-  # Wrap in a protocol
-  protocol = TBinaryProtocol.TBinaryProtocol(transport)
+    return work.translate_ret
 
-  # Create a client to use the protocol encoder
-  client = SMT.Client(protocol)
-
-  # Connect!
-  transport.open()
-
-  client.init()
-  print 'init()'
-
-  work = client.translate(100, '我 是 中国 人')
-  print work.id, work, work.input_sent, work.translate_ret
-  transport.close()
-
-except Thrift.TException, tx:
-  print '%s' % (tx.message)
+  except Thrift.TException, tx:
+    print '%s' % (tx.message)
