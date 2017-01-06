@@ -13,6 +13,7 @@
 #include "../../contrib/moses2/legacy/Util2.h"
 #include "../../contrib/moses2/util/usage.hh"
 
+using namespace std;
 
 namespace Moses2
 {
@@ -28,7 +29,37 @@ namespace Moses2
         }
     }
 
-    void batch_run(Moses2::Parameter &params, Moses2::System &system, Moses2::ThreadPool &pool)
+    TranslationInterface::TranslationInterface()
+    {
+        cerr << "Starting..." << endl;
+
+        Moses2::Timer timer;
+        timer.start();
+
+        Moses2::Parameter m_params;
+        if (!params.LoadParam(argc, argv)) {
+            return EXIT_FAILURE;
+        }
+
+        Moses2::System system(params);
+        timer.check("Loaded");
+        if (params.GetParam("show-weights")) {
+            return EXIT_SUCCESS;
+        }
+
+        //cerr << "system.numThreads=" << system.options.server.numThreads << endl;
+        Moses2::ThreadPool pool(system.options.server.numThreads, system.cpuAffinityOffset, system.cpuAffinityOffsetIncr);
+        //cerr << "CREATED POOL" << endl;
+    }
+
+    TranslationInterface::~TranslationInterface()
+    {
+        delete m_params;
+        delete m_system;
+        delete m_pool;
+    }
+
+    TranslationInterface::translate()
     {
         istream &inStream = GetInputStream(params);
 
@@ -53,55 +84,4 @@ namespace Moses2
         //util::PrintUsage(std::cerr);
 
     }
-////////////////////////////////////////////////////////////////////////////////////////////////
-    void Temp()
-    {
-        Moses2::MemPool pool;
-        Moses2::MemPoolAllocator<int> a(pool);
-
-        boost::unordered_set<int, boost::hash<int>, std::equal_to<int>, Moses2::MemPoolAllocator<int> > s(a);
-        s.insert(3);
-        s.insert(4);
-        s.insert(3);
-        s.erase(3);
-
-        boost::pool_allocator<int> alloc;
-        std::vector<int, boost::pool_allocator<int> > v(alloc);
-        for (int i = 0; i < 1000; ++i)
-        v.push_back(i);
-
-        v.clear();
-        boost::singleton_pool<boost::pool_allocator_tag, sizeof(int)>::
-            purge_memory();
-
-        abort();
-    }
-
-    TranslationInterface::TranslationInterface()
-    {
-        using namespace std;
-        //extern size_t g_numHypos;
-        cerr << "Starting..." << endl;
-
-        Moses2::Timer timer;
-        timer.start();
-        //Temp();
-
-        Moses2::Parameter params;
-        if (!params.LoadParam(argc, argv)) {
-            return EXIT_FAILURE;
-        }
-
-        Moses2::System system(params);
-        timer.check("Loaded");
-        if (params.GetParam("show-weights")) {
-            return EXIT_SUCCESS;
-        }
-
-        //cerr << "system.numThreads=" << system.options.server.numThreads << endl;
-        Moses2::ThreadPool pool(system.options.server.numThreads, system.cpuAffinityOffset, system.cpuAffinityOffsetIncr);
-        //cerr << "CREATED POOL" << endl;
-    }
-
-    TranslationInterface::
 }

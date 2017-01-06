@@ -6,24 +6,23 @@ namespace Moses2
     class Parameter;
     class System;
     class ThreadPool;
+
     class TranslationInterface
     {
     public:
-        static void DestroyFeatureFunctionStatic();
         TranslationInterface(const std::string &mosesIni);
         ~TranslationInterface();
         std::string translate(const std::string &input);
-        Moses::StaticData& getStaticData();
         Moses::Parameter& getParameters()
         {
             return m_params;
-        }
+        };
     private:
         SimpleTranslationInterface();
-        Parameter m_params;
-        const Moses::StaticData& m_staticData;
-        
-    }
+        Parameter *m_params;
+        System *m_system;
+        ThreadPool *m_pool;
+    };
 }
 
 std::istream &GetInputStream(Moses2::Parameter &params);
