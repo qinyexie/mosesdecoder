@@ -102,18 +102,27 @@ public:
 
 int main(int argc, char* argv[]) {
 
-  if (argc != 2)
-    return -1;
+  if (argc < 2)
+    {
+      cout << "args 1: model file\nargs 2: port(defaut 8761)\n";
+      return -1;
+    }
   else
     {
       string s = string(argv[1]);
       cout << "init moses by config " << s << endl;
       ptrans = new SimpleTranslationInterface(s);
     }
-  
+
+  int port = 8761;
+  if (argc == 3)
+    {
+      port = atoi(argv[2]);
+    }
+
   TThreadedServer server(
 			 boost::make_shared<SMTProcessorFactory>(boost::make_shared<SMTCloneFactory>()),
-			 boost::make_shared<TServerSocket>(9090), //port
+			 boost::make_shared<TServerSocket>(port), //port
 			 boost::make_shared<TBufferedTransportFactory>(),
 			 boost::make_shared<TBinaryProtocolFactory>());
 
