@@ -12,7 +12,8 @@ namespace Moses2
     public:
         TranslationInterface(const std::string &mosesIni);
         ~TranslationInterface();
-        std::string translate(const std::string &input);
+        # std::string translate(const std::string &input);
+        void translate();
         Moses::Parameter& getParameters()
         {
             return m_params;

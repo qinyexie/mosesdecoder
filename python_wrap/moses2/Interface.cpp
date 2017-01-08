@@ -29,45 +29,40 @@ namespace Moses2
         }
     }
 
-    TranslationInterface::TranslationInterface()
+    TranslationInterface::TranslationInterface(string &moses_init)
     {
         cerr << "Starting..." << endl;
 
         Moses2::Timer timer;
         timer.start();
 
-        Moses2::Parameter m_params;
-        if (!params.LoadParam(argc, argv)) {
+        if (!m_params.LoadParam(&moses_init)) {
             return EXIT_FAILURE;
         }
 
-        Moses2::System system(params);
+        m_system = System(m_params);
         timer.check("Loaded");
-        if (params.GetParam("show-weights")) {
+
+        if (m_params.GetParam("show-weights")) {
             return EXIT_SUCCESS;
         }
 
-        //cerr << "system.numThreads=" << system.options.server.numThreads << endl;
-        Moses2::ThreadPool pool(system.options.server.numThreads, system.cpuAffinityOffset, system.cpuAffinityOffsetIncr);
-        //cerr << "CREATED POOL" << endl;
+        cerr << "system.numThreads=" << system.options.server.numThreads << endl;
+        m_pool = Moses2::ThreadPool pool(system.options.server.numThreads, system.cpuAffinityOffset, system.cpuAffinityOffsetIncr);
+        cerr << "CREATED POOL" << endl
     }
 
-    TranslationInterface::~TranslationInterface()
-    {
-        delete m_params;
-        delete m_system;
-        delete m_pool;
-    }
+    TranslationInterface::~TranslationInterface(){}
 
-    TranslationInterface::translate()
+    void TranslationInterface::translate()
     {
-        istream &inStream = GetInputStream(params);
+        istream &inStream = GetInputStream(m_params);
 
         long translationId = 0;
         string line;
         while (getline(inStream, line)) {
             //cerr << "line=" << line << endl;
-            boost::shared_ptr<Moses2::TranslationTask> task(new Moses2::TranslationTask(system, line, translationId));
+            std::shared_ptr<Moses2::TranslationTask> task(new Moses2::TranslationTask(system, line, translationId));
 
             //cerr << "START pool.Submit()" << endl;
             pool.Submit(task);
