@@ -11,7 +11,8 @@
 #include "../../contrib/moses2/legacy/ThreadPool.h"
 #include "../../contrib/moses2/legacy/Timer.h"
 #include "../../contrib/moses2/legacy/Util2.h"
-#include "../../contrib/moses2/util/usage.hh"
+#include "../../util/usage.hh"
+#include "Interface.h"
 
 using namespace std;
 
@@ -29,30 +30,30 @@ namespace Moses2
         }
     }
 
-    TranslationInterface::TranslationInterface(string &moses_init)
+    TranslationInterface::TranslationInterface(const string& mosesInit)
     {
         cerr << "Starting..." << endl;
+        init_state = -1;
 
         Moses2::Timer timer;
         timer.start();
 
-        if (!m_params.LoadParam(&moses_init)) {
-            return EXIT_FAILURE;
+        if (!m_params.LoadParam(mosesInit)) {
+            init_state = EXIT_FAILURE;
         }
 
-        m_system = System(m_params);
+        pm_system.reset(new System(m_params));
         timer.check("Loaded");
 
         if (m_params.GetParam("show-weights")) {
-            return EXIT_SUCCESS;
+            init_state = EXIT_SUCCESS;
         }
 
-        cerr << "system.numThreads=" << system.options.server.numThreads << endl;
-        m_pool = Moses2::ThreadPool pool(system.options.server.numThreads, system.cpuAffinityOffset, system.cpuAffinityOffsetIncr);
-        cerr << "CREATED POOL" << endl
+        cerr << "system.numThreads=" << pm_system->options.server.numThreads << endl;
+        pm_pool.reset(new Moses2::ThreadPool(pm_system->options.server.numThreads, pm_system->cpuAffinityOffset, pm_system->cpuAffinityOffsetIncr));
+        init_state = 0;
+        cerr << "CREATED POOL" << endl;
     }
-
-    TranslationInterface::~TranslationInterface(){}
 
     void TranslationInterface::translate()
     {
@@ -62,15 +63,15 @@ namespace Moses2
         string line;
         while (getline(inStream, line)) {
             //cerr << "line=" << line << endl;
-            std::shared_ptr<Moses2::TranslationTask> task(new Moses2::TranslationTask(system, line, translationId));
+            boost::shared_ptr<Moses2::TranslationTask> task(new Moses2::TranslationTask(*pm_system, line, translationId));
 
             //cerr << "START pool.Submit()" << endl;
-            pool.Submit(task);
+            pm_pool->Submit(task);
             //task->Run();
             ++translationId;
         }
 
-        pool.Stop(true);
+        pm_pool->Stop(true);
 
         if (&inStream != &cin) {
             delete &inStream;
