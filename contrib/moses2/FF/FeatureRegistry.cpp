@@ -47,6 +47,7 @@ public:
 ////////////////////////////////////////////////////////////////////
 FeatureRegistry::FeatureRegistry()
 {
+    cerr << "FeatureRegistry created" << endl;
   // Feature with same name as class
 #define MOSES_FNAME(name) Add(#name, new DefaultFeatureFactory< name >());
   // Feature with different name than class.
@@ -73,6 +74,7 @@ FeatureRegistry::FeatureRegistry()
 
   MOSES_FNAME(SkeletonStatefulFF);
   MOSES_FNAME(SkeletonStatelessFF);
+  cerr << "FeatureRegistry created finish" << endl;
 }
 
 FeatureRegistry::~FeatureRegistry()
@@ -84,6 +86,10 @@ void FeatureRegistry::Add(const std::string &name, FeatureFactory *factory)
 {
   std::pair<std::string, boost::shared_ptr<FeatureFactory> > to_ins(name,
       boost::shared_ptr<FeatureFactory>(factory));
+  if (name == "Distortion")
+  {
+      cerr << name << " is registry now" << endl;
+  }
   if (!registry_.insert(to_ins).second) {
     cerr << "Duplicate feature name " << name << endl;
     abort();

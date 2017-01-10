@@ -41,9 +41,17 @@ namespace Moses2
         if (!m_params.LoadParam(mosesInit)) {
             init_state = EXIT_FAILURE;
         }
+        cerr << "moses.ini parameters parse succ" << endl;
+
+        System* psystem = new System(m_params);
+        cerr << "moses feature init succ with point" << endl;
+
+        System system(m_params);
+        cerr << "moses feature init succ with no shared_ptr" << endl;
 
         pm_system.reset(new System(m_params));
         timer.check("Loaded");
+        cerr << "moses feature init succ" << endl;
 
         if (m_params.GetParam("show-weights")) {
             init_state = EXIT_SUCCESS;
@@ -54,7 +62,40 @@ namespace Moses2
         init_state = 0;
         cerr << "CREATED POOL" << endl;
     }
+/*
+    TranslationInterface::TranslationInterface(int argc, char** argv)
+    {
+        cerr << "Starting..." << endl;
+        init_state = -1;
 
+        Moses2::Timer timer;
+        timer.start();
+
+        if (!m_params.LoadParam(argc, argv)) {
+            init_state = EXIT_FAILURE;
+        }
+        cerr << "moses.ini parameters parse succ" << endl;
+
+        System* psystem = new System(m_params);
+        cerr << "moses feature init succ with point" << endl;
+
+        m_system = System(m_params);
+        cerr << "moses feature init succ with no shared_ptr" << endl;
+
+        pm_system.reset(new System(m_params));
+        timer.check("Loaded");
+        cerr << "moses feature init succ" << endl;
+
+        if (m_params.GetParam("show-weights")) {
+            init_state = EXIT_SUCCESS;
+        }
+
+        cerr << "system.numThreads=" << pm_system->options.server.numThreads << endl;
+        pm_pool.reset(new Moses2::ThreadPool(pm_system->options.server.numThreads, pm_system->cpuAffinityOffset, pm_system->cpuAffinityOffsetIncr));
+        init_state = 0;
+        cerr << "CREATED POOL" << endl;
+    }
+*/
     void TranslationInterface::translate()
     {
         istream &inStream = GetInputStream(m_params);
