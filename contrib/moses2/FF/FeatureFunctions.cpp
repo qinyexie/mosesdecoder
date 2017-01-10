@@ -26,7 +26,8 @@ namespace Moses2
 FeatureFunctions::FeatureFunctions(System &system) :
     m_system(system), m_ffStartInd(0)
 {
-  //m_registry.PrintFF();
+    cerr << "in FeatureFunctions "<<" init now" << endl;
+    m_registry.PrintFF();
 }
 
 FeatureFunctions::~FeatureFunctions()

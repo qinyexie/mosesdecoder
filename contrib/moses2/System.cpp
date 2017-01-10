@@ -23,6 +23,7 @@ namespace Moses2
 System::System(const Parameter &paramsArg) :
     params(paramsArg), featureFunctions(*this)
 {
+    cerr << "in system init function "<< "init now" << endl;
   options.init(paramsArg);
   IsPb();
 

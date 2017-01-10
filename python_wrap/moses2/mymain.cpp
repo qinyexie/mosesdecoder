@@ -1,6 +1,6 @@
 #include"Interface.h"
 #include<iostream>
-
+#include "../../contrib/moses2/FF/FeatureRegistry.h"
 using namespace std;
 
 int main(int argc, char* argv[])
